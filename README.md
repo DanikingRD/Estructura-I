@@ -1,5 +1,5 @@
 # C++ Assignments
-A collection of C++ manually implemented data structures and algorithms.
+A collection of manually implemented data structures and algorithms.
 
 ## Building with the GCC compiler
 Install gcc using your package manager e.g `sudo dnf install gcc` or `brew install gcc` if you are on macos.
