@@ -1,6 +1,6 @@
 **/*.out
 **/*.o
-
+**/*program
 .vscode
 .idea
 .DS_Store
