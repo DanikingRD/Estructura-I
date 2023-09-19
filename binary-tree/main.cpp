@@ -13,6 +13,7 @@
 
 #include <iostream>
 
+
 using namespace std;
 
 struct Node { 
@@ -57,7 +58,7 @@ public:
 		return this->remove(this->root, value);
 	}
 
-	bool remove(Node* node, int value) {
+	bool remove(Node*& node, int value) {
 		if (node == nullptr) return false;
 		if (value < node->value) {  
 			// muevete al siguiente nodo por la izquierda.
@@ -87,15 +88,17 @@ public:
 			replaceNode(node, node->right);
 			destroyNode(node);
 		} else {
-			replaceNode(node, nullptr);
+			// replaceNode(node, nullptr);
 			destroyNode(node);
 		}
 	}
 
-	static void destroyNode(Node* node) {
+	static void destroyNode(Node*&node) {
 		node->left = nullptr;
 		node->right = nullptr;
+		// cout << " At the moment of deleteNode address of root is " << node << endl;
 		delete node;
+		node = NULL;
 	}
 	
 	static void replaceNode(Node* target, Node* newNode) {
@@ -125,35 +128,7 @@ public:
 		}
 	}
 	
-	static void traversePreOrder(Node* node) {
-		if (node == nullptr) return;
-		// 1. Visit the root.
-		// 2. Traverse the left-side of the sub tree
-		// 3. Traverse the right-side of the sub tree
-		cout << node->value << " - ";
-		traversePreOrder(node->left);
-		traversePreOrder(node->right);
-	}
 
-	static void traverseInOrder(Node* node) {
-		// 1. Traverse the left-side of the sub-tree
-		// 2. Visit the root.
-		// 3. Traverse the right-side of the tree.
-		if (node == nullptr) return;
-		traverseInOrder(node->left);
-		cout << node->value << endl;
-		traverseInOrder(node->right);
-	}
-
-	static void traversePostOrder(Node* node) {
-		// 1. Traverse the left-side of the sub-tree
-		// 2. Traverse the right-side of the sub-tree
-		// 3. Visit the root.
-		if (node == nullptr) return;
-		traversePostOrder(node->left);
-		traversePostOrder(node->right);
-		cout << node->value << " - " << "\n";
-	}
 
 
 	bool contains(int value) {
@@ -176,20 +151,51 @@ public:
 	}
 
 	void displayTree(Node* node, int indent = 0) {
+		// cout << " At the moment of display address of root is " << root << endl;
 		if (node == nullptr) {
 			return;
 		}
-		displayTree(node->right, indent + 2);
+		displayTree(node->right, indent + 1);
 		for (int level = 0; level < indent; level++) {
 			cout << "   ";
 		}
 		
 		cout << node->value << endl;
 
-		displayTree(node->left, indent + 2);
+		displayTree(node->left, indent + 1);
 	}
 
 };
+
+void printPreOrder(Node* node) {
+	if (node == nullptr) return;
+	// 1. Visit the root.
+	// 2. Traverse the left-side of the sub tree
+	// 3. Traverse the right-side of the sub tree
+	cout << node->value << " - ";
+	printPreOrder(node->left);
+	printPreOrder(node->right);
+}
+
+void printInOrder(Node* node) {
+	// 1. Traverse the left-side of the sub-tree
+	// 2. Visit the root.
+	// 3. Traverse the right-side of the tree.
+	if (node == nullptr) return;
+	printInOrder(node->left);
+	cout << node->value << endl;
+	printInOrder(node->right);
+}
+
+void printPostOrden(Node* node) {
+	// 1. Traverse the left-side of the sub-tree
+	// 2. Traverse the right-side of the sub-tree
+	// 3. Visit the root.
+	if (node == nullptr) return;
+	printPostOrden(node->left);
+	printPostOrden(node->right);
+	cout << node->value << " - " << "\n";
+}
 
 int readInt() {
   	int value;
@@ -225,7 +231,20 @@ void makeRemove(BinarySearchTree* tree) {
 	} else {
 		printf(" * El valor %d no se encuentra en el árbol\n", data);
 	}
+	// tree->display();
 }
+
+
+void clear() {
+	#ifdef WINDOWS
+		std::system("cls");
+	#else
+		// assume posix
+		std::system("clear");
+	#endif
+}
+
+
 void run() {
 	BinarySearchTree* tree = new BinarySearchTree();
 	bool exit;
@@ -258,6 +277,14 @@ void run() {
 			case 3:
 				checkValue(tree);
 				break;
+			case 4:
+				printPreOrder(tree->root);
+				break;
+			case 5:
+				printInOrder(tree->root);
+				break;
+			case 6:
+				printPostOrden(tree->root);
 			case 7:
 				tree->display();
 				break;
@@ -265,7 +292,7 @@ void run() {
 				printf(" * La opción %d no existe. Intente de nuevo.", option);
 				break;
 		}
-
+		clear();	
 		tree->display();
 
 		if (exit) {
