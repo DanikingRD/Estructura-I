@@ -17,10 +17,11 @@ using namespace std;
 
 struct Node { 
 	int value;
+	Node* parent;
 	Node* left;
 	Node* right;
-	
-	Node(int value) {
+	Node(Node* parent, int value) {
+		this->parent = parent;
 		this->value = value;
 		this->left = nullptr;
 		this->right = nullptr;
@@ -34,25 +35,95 @@ public:
 	BinarySearchTree() {
 		this->root = nullptr;
 }
-	
 	void insert(int value) {
-		this->insert(this->root, value);
+		this->insert(this->root, NULL, value);
 	}
 
 	// Insertar un valor al árbol.
-	void insert(Node*& node, int value) {
+	void insert(Node*& node, Node* parent, int value) {
 		if (node == nullptr) {
 			// Si el arbol está vacío, crea el nodo raíz.
-			node = new Node(value);
+			node = new Node(parent, value);
 			return;
 		}
 		if (value < node->value) {
-			insert(node->left, value);
+			insert(node->left, parent, value);
 		} else {
-			insert(node->right, value);
+			insert(node->right, parent, value);
 		}
 	}
 
+	bool remove(int value) {
+		return this->remove(this->root, value);
+	}
+
+	bool remove(Node* node, int value) {
+		if (node == nullptr) return false;
+		if (value < node->value) {  
+			// muevete al siguiente nodo por la izquierda.
+			remove(node->left, value);
+		} else if (value > node->value) {
+			// muevete a al siguiente nodo por la derecha.
+			remove(node->right, value);
+		} else {
+			remove(node);
+		}
+		return true;
+	}
+
+	void remove(Node* node) {
+		if (node->left && node->right) {
+			// Caso 1: arbol con 2 hijos
+			// Primero buscamos el nodo derecho
+			// Luego buscanos el minimo valor a partir de ahi.
+			Node* min = BinarySearchTree::findMin(node->right);
+			node->value = min->value;
+			remove(min);
+		} else if (node->left) {
+			// Caso 2: Borrar nodo con solo 1 sub-arbol hijo
+			replaceNode(node, node->left);
+			destroyNode(node);
+		} else if (node->right) {
+			replaceNode(node, node->right);
+			destroyNode(node);
+		} else {
+			replaceNode(node, nullptr);
+			destroyNode(node);
+		}
+	}
+
+	static void destroyNode(Node* node) {
+		node->left = nullptr;
+		node->right = nullptr;
+		delete node;
+	}
+	
+	static void replaceNode(Node* target, Node* newNode) {
+		if (target->parent) {
+			if (target->value == target->parent->left->value) {
+				// Eliminar el nodo izquierdo
+				target->parent->left = newNode;
+				
+			} else if (target->value == target->parent->right->value) {
+				// Eliminar el nodo derecho
+				target->parent->right = newNode;
+			}
+		}
+		if (newNode) {
+			// asignar nuevo padre
+			newNode->parent = target->parent;
+		}
+	}
+
+	static Node* findMin(Node* subTree) {
+		if (!subTree) {
+			return nullptr;
+		} else if (subTree->left) {
+			return findMin(subTree->left);
+		} else {
+			return subTree;
+		}
+	}
 	
 	static void traversePreOrder(Node* node) {
 		if (node == nullptr) return;
@@ -100,17 +171,6 @@ public:
 		}
 	}
 
-	int leftValue() {
-		return this->root->left->value;
-	}
-
-	int rightValue() {
-		return this->root->right->value;
-	}
-	bool isEmpty() {
-		return this->root == nullptr;
-	}
-
 	void display() {
 		displayTree(this->root);
 	}
@@ -119,12 +179,14 @@ public:
 		if (node == nullptr) {
 			return;
 		}
-		displayTree(node->right, indent + 1);
+		displayTree(node->right, indent + 2);
 		for (int level = 0; level < indent; level++) {
-			cout << "    ";
+			cout << "   ";
 		}
-		cout << node->value << "\n";
-		displayTree(node->left, indent + 1);
+		
+		cout << node->value << endl;
+
+		displayTree(node->left, indent + 2);
 	}
 
 };
@@ -149,11 +211,20 @@ void checkValue(BinarySearchTree* tree) {
 	cout << "Ingrese el valor a buscar: ";
 	int data = readInt();
 	if (tree->contains(data)) {
-		printf("El valor %d si se encuentra en el árbol\n", data);
+		printf("* El valor %d si se encuentra en el árbol\n", data);
 	} else {
-		printf("El valor %d no se encuentra en el árbol\n", data);
+		printf(" * El valor %d no se encuentra en el árbol\n", data);
 	}
-	
+}
+
+void makeRemove(BinarySearchTree* tree) {
+	printf("Ingrese el valor a eliminar: ");
+	int data = readInt();
+	if (tree->remove(data)) {
+		printf(" * El valor %d ha sido eliminado.\n", data);
+	} else {
+		printf(" * El valor %d no se encuentra en el árbol\n", data);
+	}
 }
 void run() {
 	BinarySearchTree* tree = new BinarySearchTree();
@@ -169,6 +240,7 @@ void run() {
 		 << "   4) - Para hacer un reccorido en PreOrden\n"
 		 << "   5) - Para hacer un recorrido en InOrden\n"
 		 << "   6) - Para hacer un recorrido en PostOrden\n"
+		 << "   7) - Para mostrar el árbol\n"
          << "Ingrese su opción: ";
 		
 		option = readInt();
@@ -181,7 +253,13 @@ void run() {
 				makeInsert(tree);
 				break;
 			case 2:
+				makeRemove(tree);
+				break;
+			case 3:
 				checkValue(tree);
+				break;
+			case 7:
+				tree->display();
 				break;
 			default:
 				printf(" * La opción %d no existe. Intente de nuevo.", option);
