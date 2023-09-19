@@ -52,8 +52,9 @@ public:
 			insert(node->right, value);
 		}
 	}
+
 	
-	void traversePreOrder(Node* node) {
+	static void traversePreOrder(Node* node) {
 		if (node == nullptr) return;
 		// 1. Visit the root.
 		// 2. Traverse the left-side of the sub tree
@@ -63,11 +64,24 @@ public:
 		traversePreOrder(node->right);
 	}
 
-	void traverseInOrder(Node* node) {
+	static void traverseInOrder(Node* node) {
 		// 1. Traverse the left-side of the sub-tree
 		// 2. Visit the root.
 		// 3. Traverse the right-side of the tree.
-		if (node == nullptr) return;	
+		if (node == nullptr) return;
+		traverseInOrder(node->left);
+		cout << node->value << endl;
+		traverseInOrder(node->right);
+	}
+
+	static void traversePostOrder(Node* node) {
+		// 1. Traverse the left-side of the sub-tree
+		// 2. Traverse the right-side of the sub-tree
+		// 3. Visit the root.
+		if (node == nullptr) return;
+		traversePostOrder(node->left);
+		traversePostOrder(node->right);
+		cout << node->value << " - " << "\n";
 	}
 
 
@@ -142,7 +156,6 @@ void checkValue(BinarySearchTree* tree) {
 	
 }
 void run() {
-	
 	BinarySearchTree* tree = new BinarySearchTree();
 	bool exit;
 	int option;
@@ -151,7 +164,11 @@ void run() {
 		cout << "Presione: \n"
          << "   0) - Para salir del programa.\n"
          << "   1) - Para ingresar un valor al árbol (insert).\n"
-		 << "   2) - Para verificar si el árbol contiene un valor (contains).\n"
+		 << "   2) - Para eliminar un elemento del árbol (remove)\n"
+		 << "   3) - Para verificar si el árbol contiene un valor (contains).\n"
+		 << "   4) - Para hacer un reccorido en PreOrden\n"
+		 << "   5) - Para hacer un recorrido en InOrden\n"
+		 << "   6) - Para hacer un recorrido en PostOrden\n"
          << "Ingrese su opción: ";
 		
 		option = readInt();
