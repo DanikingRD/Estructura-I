@@ -33,13 +33,17 @@ struct BinarySearchTree {
 public:
 	BinarySearchTree() {
 		this->root = nullptr;
+}
+	
+	void insert(int value) {
+		this->insert(this->root, value);
 	}
 
 	// Insertar un valor al árbol.
-	void insert(Node* node, int value) {
+	void insert(Node*& node, int value) {
 		if (node == nullptr) {
 			// Si el arbol está vacío, crea el nodo raíz.
-			this->root = new Node(value);
+			node = new Node(value);
 			return;
 		}
 		if (value < node->value) {
@@ -49,17 +53,19 @@ public:
 		}
 	}
 
-	void displayTree(Node* side, int index) {
-		if (isEmpty()) return;
-		
-		// primero imprime el lado derecho
-		displayTree(side->right, index + 1);
+	bool contains(int value) {
+		return this->contains(this->root, value);
+	}
 
-		for (int i = 0; i < index; i++) {
-			cout << "<< >>";
+	bool contains(Node*& node, int value) {
+		if (node == nullptr) return false;
+		if (node->value == value) {
+			return true;
+		} else if (value < node->value) {
+			return contains(node->left, value);
+		} else {
+			return contains(node->right, value);
 		}
-		cout << side->value << "\n";
-
 	}
 
 	int leftValue() {
@@ -69,11 +75,28 @@ public:
 	int rightValue() {
 		return this->root->right->value;
 	}
-
 	bool isEmpty() {
 		return this->root == nullptr;
 	}
+
+	void display() {
+		displayTree(this->root);
+	}
+
+	void displayTree(Node* node, int indent = 0) {
+		if (node == nullptr) {
+			return;
+		}
+		displayTree(node->right, indent + 1);
+		for (int level = 0; level < indent; level++) {
+			cout << "    ";
+		}
+		cout << node->value << "\n";
+		displayTree(node->left, indent + 1);
+	}
+
 };
+
 int readInt() {
   	int value;
   	while (!(cin >> value)) {
@@ -83,12 +106,22 @@ int readInt() {
 	}
 	return value;
 }
-
 void makeInsert(BinarySearchTree* tree) {
 	cout << "Ingrese el valor a insertar: ";
 	int data = readInt();
-	tree->insert(tree->root, data);
-	cout << " * El valor " << data << " ha sido insertado.\n";
+	tree->insert(data);
+	printf(" * El valor %d ha sido insertado.\n", data);
+}
+
+void checkValue(BinarySearchTree* tree) {
+	cout << "Ingrese el valor a buscar: ";
+	int data = readInt();
+	if (tree->contains(data)) {
+		printf("El valor %d si se encuentra en el árbol\n", data);
+	} else {
+		printf("El valor %d no se encuentra en el árbol\n", data);
+	}
+	
 }
 void run() {
 	
@@ -99,7 +132,8 @@ void run() {
 	while (true) {
 		cout << "Presione: \n"
          << "   0) - Para salir del programa.\n"
-         << "   1) - Para ingresar un elemento al árbol (insert).\n"
+         << "   1) - Para ingresar un valor al árbol (insert).\n"
+		 << "   2) - Para verificar si el árbol contiene un valor (contains).\n"
          << "Ingrese su opción: ";
 		
 		option = readInt();
@@ -111,16 +145,21 @@ void run() {
 			case 1:
 				makeInsert(tree);
 				break;
-			default: 
+			case 2:
+				checkValue(tree);
+				break;
+			default:
+				printf(" * La opción %d no existe. Intente de nuevo.", option);
 				break;
 		}
+
+		tree->display();
 
 		if (exit) {
 			delete tree;
 			break;
 		}
 	}
-
 }
 
 int main(void) {
