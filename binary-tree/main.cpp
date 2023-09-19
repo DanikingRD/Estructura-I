@@ -52,6 +52,24 @@ public:
 			insert(node->right, value);
 		}
 	}
+	
+	void traversePreOrder(Node* node) {
+		if (node == nullptr) return;
+		// 1. Visit the root.
+		// 2. Traverse the left-side of the sub tree
+		// 3. Traverse the right-side of the sub tree
+		cout << node->value << " - ";
+		traversePreOrder(node->left);
+		traversePreOrder(node->right);
+	}
+
+	void traverseInOrder(Node* node) {
+		// 1. Traverse the left-side of the sub-tree
+		// 2. Visit the root.
+		// 3. Traverse the right-side of the tree.
+		if (node == nullptr) return;	
+	}
+
 
 	bool contains(int value) {
 		return this->contains(this->root, value);
