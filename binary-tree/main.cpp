@@ -12,6 +12,7 @@
  */
 
 #include <iostream>
+#include <limits>
 
 #ifdef _WIN32 // Detectar si esta corriendo en un sistema windows
 const std::string CLEAR_COMMAND = "cls"; // Usar el comando cls para limpiar la pantalla en Windows
@@ -132,8 +133,6 @@ private:
             remove(node->right, min->value);
         } else {
             // Caso 2 y 3) - El nodo tiene un subárbol derecho o uno izquierdo.
-            Node* temp = node;
-
             if (node->left) {
                 // Si tiene un subárbol izquierdo, hacemos que apunte
                 // a su hijo izquierdo.
@@ -146,7 +145,6 @@ private:
                 // Si no tiene hijos, lo eliminamos.
                 node = nullptr;
             }
-            delete temp;
         }
     }
 
@@ -161,6 +159,7 @@ private:
         return findMin(subTree->left);
     }
 
+    // Método que busca si un valor se encuentra en el arbol
     bool contains(const Node* node, int value) const {
         if (node == nullptr) {
             // Si el árbol es nulo, no tenemos que verificar nada.
@@ -180,7 +179,7 @@ private:
         }
     }
 
-    // Función que muestra el árbol en forma visual con indentación.
+    // Método que muestra el árbol en forma visual con indentación.
     // Utiliza un recorrido inverso en orden (derecha, raíz, izquierda) para imprimirlo de manera ordenada.
     void displayTree(const Node* node, int indent = 0) const {
         if (node == nullptr) {
@@ -202,7 +201,7 @@ private:
         displayTree(node->left, indent + 1);
     }
 
-    // Función que destruye un árbol liberando la memoria de todos los nodos.
+    // Método que destruye un árbol liberando la memoria de todos los nodos.
     void destroyTree(Node* node) {
         if (node) {
             // Si el nodo no es nulo, llamamos recursivamente a la función para los hijos izquierdo y derecho.
@@ -213,7 +212,7 @@ private:
         }
     }
 
-    // Función para imprimir el árbol en preorden (raíz, izquierda, derecha).
+    // Método para imprimir el árbol en preorden (raíz, izquierda, derecha).
     void printPreOrder(const Node* node) const {
         if (node == nullptr) return; // Si el nodo es nulo, no hacemos nada.
 
@@ -225,7 +224,7 @@ private:
         printPreOrder(node->right);
     }
 
-    // Función para imprimir el árbol en orden (izquierda, raíz, derecha).
+    // Método para imprimir el árbol en orden (izquierda, raíz, derecha).
     void printInOrder(const Node* node) const {
         if (node == nullptr) return; // Si el nodo es nulo, no hacemos nada.
 
@@ -239,7 +238,7 @@ private:
         printInOrder(node->right);
     }
 
-    // Función para imprimir el árbol en postorden (izquierda, derecha, raíz).
+    // Método para imprimir el árbol en postorden (izquierda, derecha, raíz).
     void printPostOrder(const Node* node) const {
         if (node == nullptr) return; // Si el nodo es nulo, no hacemos nada.
 
@@ -272,6 +271,13 @@ int main() {
 
         int option;
         std::cin >> option;
+
+        if (std::cin.fail()) {
+            std::cin.clear(); // Limpiamos el estado de error
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignoramos el resto de la entrada inválida
+            std::cout << "Entrada inválida. Por favor ingresa un número entero.\n";
+            continue; // Volvemos al inicio del bucle
+        }
 
         switch (option) {
             case 0:
