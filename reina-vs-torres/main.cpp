@@ -1,3 +1,16 @@
+/*
+ * ENUNCIADO: Reina vs Torres Enemigas
+ * INTEGRANTES: 1113684 - Clay Manuel Gomera Arias
+ *              1114116 - Jean Carlos Araujo Molina
+ *              1116906 - Gabriel Mejía Acosta
+ *              1114441 - Rafael Eduardo Peralta Pimentel
+ *              1114814 - Hadelin Maria García Cedano
+ *              1114950 - Elian Gabriel Villegas Báez
+ *              1116614 - Luis Daniel de la Cruz García
+ *              1116623 - Aquilenyi Suero de los Santos
+ * FECHA: 17/09/2023 <== Fecha de realización
+ */
+
 #include <iostream>
 
 using namespace std;
@@ -5,10 +18,10 @@ using namespace std;
 const unsigned int ROWS = 8;
 const unsigned int COLS = 8;
 
-const char TORRE = 'T';
-const char REINA = 'R';
-const char POSIBLE_JUGADA = 'V';
-const char JUGADA_ELIMINADA = 'X';
+const char TOWER = 'T';
+const char QUEEN = 'R';
+const char CAN_PLAY = 'V';
+const char IS_ELIMINATED = 'X';
 
 typedef int table_t[ROWS][COLS];
 typedef int pos_t[2];
@@ -52,9 +65,9 @@ void printTable(table_t* table) {
                 continue;
             }
 
-            if (value == TORRE)
+            if (value == TOWER)
                 printf("\033[1;31m%c\033[0m ", value);
-            else if (value == REINA)
+            else if (value == QUEEN)
                 printf("\033[1;32m%c\033[0m ", value);
             else
                 printf("%c ", value);
@@ -96,11 +109,11 @@ void getInput(Game* game, const char* ficha, char value) {
     int new_pos_y = pos[1] - 1;
     (*table)[new_pos_x][new_pos_y] = value;
 
-    if (value == REINA) {
+    if (value == QUEEN) {
         game->queenPos[0] = new_pos_x;
         game->queenPos[1] = new_pos_y;
     }
-    if (value == TORRE) {
+    if (value == TOWER) {
         int index = game->towerPos[0][0] == 0 ? 0 : 1;
         game->towerPos[index][0] = new_pos_x;
         game->towerPos[index][1] = new_pos_y;
@@ -110,9 +123,9 @@ void getInput(Game* game, const char* ficha, char value) {
 
 void setPositions(Game* game) {
     printTable(&game->table);
-    getInput(game, "reina", REINA);
-    getInput(game, "torre 1", TORRE);
-    getInput(game, "torre 2", TORRE);
+    getInput(game, "reina", QUEEN);
+    getInput(game, "torre 1", TOWER);
+    getInput(game, "torre 2", TOWER);
 }
 
 bool isTowerInRange(pos_t* towerPos, pos_t pos) {
@@ -170,9 +183,9 @@ void generateQueenMoves(Game* game) {
                 bool eliminatedByTowerB = isTowerInRange(towerB, checkPos);
 
                 if (eliminatedByTowerA || eliminatedByTowerB) {
-                    game->table[i][j] = 'X';
+                    game->table[i][j] = IS_ELIMINATED;
                 } else {
-                    game->table[i][j] = 'V';
+                    game->table[i][j] = CAN_PLAY;
                 }
             }
         }
