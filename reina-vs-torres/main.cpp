@@ -21,34 +21,30 @@ struct Game {
 
 void readPosition(pos_t& pos, const char* ficha) {
     cout << "Ingrese la posición de la " << ficha << " (fila, columna): ";
-    while (!(cin >> pos[0] >> pos[1]))
-    {
+    while (!(cin >> pos[0] >> pos[1])) {
         cout << "Ingrese un posición válida: (fila, columna) ";
         cin.clear();
         cin.ignore(123, '\n');
     }
-    cout << " * Posición de la " <<  ficha << ": (" << pos[0] << ", " << pos[1] << ")\n";
+    cout << " * Posición de la " << ficha << ": (" << pos[0] << ", " << pos[1]
+         << ")\n";
 }
 
 bool isPosOutOfBounds(int x, int y) {
     return x < 1 || x > ROWS || y < 1 || y > COLS;
 }
 
-void printTable(table_t *table)
-{
+void printTable(table_t* table) {
     cout << "  ";
     // Imprime las columnas
-    for (int i = 0; i < COLS; i++)
-    {
+    for (int i = 0; i < COLS; i++) {
         cout << (i + 1) << " ";
     }
     cout << endl;
-    for (int i = 0; i < ROWS; i++)
-    {
+    for (int i = 0; i < ROWS; i++) {
         cout << (i + 1) << " "; // Imprime las filas
-        for (int j = 0; j < COLS; j++)
-        {
-            
+        for (int j = 0; j < COLS; j++) {
+
             char value = (*table)[i][j];
 
             if (value == 0) {
@@ -74,14 +70,15 @@ bool checkPos(table_t* table, pos_t* pos) {
     int y = (*pos)[1];
 
     if (isPosOutOfBounds(x, y)) {
-        cout << "La posición (" << x << ", " << y << ") está fuera de los límites del tablero.\n";
+        cout << "La posición (" << x << ", " << y
+             << ") está fuera de los límites del tablero.\n";
         return false;
     }
 
     int row = x - 1;
     int col = y - 1;
-    
-    if ((*table)[row][col] != 0) { 
+
+    if ((*table)[row][col] != 0) {
         cout << "La posición (" << x << ", " << y << ") ya está ocupada.\n";
         return false;
     }
@@ -90,81 +87,103 @@ bool checkPos(table_t* table, pos_t* pos) {
 
 void getInput(Game* game, const char* ficha, char value) {
     table_t* table = &game->table;
-    pos_t newPos = {};
+    pos_t pos = {};
     do {
-        readPosition(newPos, ficha);
-    } while (!checkPos(&game->table, &newPos));
+        readPosition(pos, ficha);
+    } while (!checkPos(&game->table, &pos));
     // Actualiza la posición de la ficha
-    (*table)[newPos[0] - 1][newPos[1] - 1] = value;
-    
+    int new_pos_x = pos[0] - 1;
+    int new_pos_y = pos[1] - 1;
+    (*table)[new_pos_x][new_pos_y] = value;
+
     if (value == REINA) {
-        game->queenPos[0] = newPos[0];
-        game->queenPos[1] = newPos[1];
+        game->queenPos[0] = new_pos_x;
+        game->queenPos[1] = new_pos_y;
     }
     if (value == TORRE) {
         int index = game->towerPos[0][0] == 0 ? 0 : 1;
-        game->towerPos[index][0] = newPos[0];
-        game->towerPos[index][1] = newPos[1];
+        game->towerPos[index][0] = new_pos_x;
+        game->towerPos[index][1] = new_pos_y;
     }
     printTable(table);
 }
 
-void setPositions(Game* game)
-{
+void setPositions(Game* game) {
     printTable(&game->table);
     getInput(game, "reina", REINA);
     getInput(game, "torre 1", TORRE);
     getInput(game, "torre 2", TORRE);
 }
 
-void generateQueenMoves(Game* game) { 
+bool isTowerInRange(pos_t* towerPos, pos_t pos) {
+    int towerX = (*towerPos)[0];
+    int towerY = (*towerPos)[1];
+    int checkX = pos[0];
+    int checkY = pos[1];
+
+    // La torre esta en el rango si la posicion coincide
+    // con almenos uno de sus ejes.
+    if (towerX == checkX || towerY == checkY) {
+        return true;
+    }
+    return false;
+}
+
+void generateQueenMoves(Game* game) {
     // El programa debe desplegar el tablero con las
-    // jugadas posibles de la Reina, colocando una V donde la reina pueda moverse sin ser eliminada y
-    // una X donde pueda moverse, pero ser eliminada por una o las dos torres enemiga
+    // jugadas posibles de la Reina, colocando una V donde la reina pueda
+    // moverse sin ser eliminada y una X donde pueda moverse, pero ser eliminada
+    // por una o las dos torres enemiga
 
     // 1. Obtener la posición de la reina
     // 2. Obtener las posiciones de las torres
     // 3. Generar las posibles jugadas de la reina
     // 4. Marcar las posibles jugadas de la reina
-    // 5. Marcar las posibles jugadas de la reina que pueden ser eliminadas por las torres
+    // 5. Marcar las posibles jugadas de la reina que pueden ser eliminadas por
+    // las torres
     // 6. Mostrar el tablero con las jugadas posibles de la reina
 
     // 1. Obtener la posición de la reina
     int queenX = game->queenPos[0];
     int queenY = game->queenPos[1];
-    cout << "Posición de la reina: (" << queenX << ", " << queenY << ")\n";
 
     // 2. Obtener las posiciones de las torres
-    pos_t* towerA  = &game->towerPos[0];
-    pos_t* towerB  = &game->towerPos[1];
-    
-    cout << "Posición de la torre A: (" << (*towerA)[0] << ", " << (*towerA)[1] << ")\n";
-    cout << "Posición de la torre B: (" << (*towerB)[0] << ", " << (*towerB)[1] << ")\n";
+    pos_t* towerA = &game->towerPos[0];
+    pos_t* towerB = &game->towerPos[1];
 
-    // 3. Generar las posibles jugadas de la reina
-    for (int i = 0; i < ROWS; i++)
-    {
-        for (int j = 0; j < COLS; ++j)
-        {
-            int x = i + 1;
-            int y = j + 1;
-            if (x == queenX && y == queenY) continue;
-            if (x == queenX || y == queenY || abs(x - queenX) == abs(y - queenY)) {
-                // 4. Marcar las posibles jugadas de la reina
-                game->table[i][j] = POSIBLE_JUGADA; 
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+
+            pos_t checkPos = {i, j};
+
+            bool isQueenPos = queenX == i && queenY == j;
+            bool isTowerAPos = (*towerA)[0] == i && (*towerA)[1] == j;
+            bool isTowerBPos = (*towerB)[0] == i && (*towerB)[1] == j;
+
+            if (isQueenPos || isTowerAPos || isTowerBPos) {
+                continue;
+            }
+
+            bool isDiagonal = std::abs(i - queenX) == std::abs(j - queenY);
+            if (isDiagonal || queenX == i || queenY == j) {
+                bool eliminatedByTowerA = isTowerInRange(towerA, checkPos);
+                bool eliminatedByTowerB = isTowerInRange(towerB, checkPos);
+
+                if (eliminatedByTowerA || eliminatedByTowerB) {
+                    game->table[i][j] = 'X';
+                } else {
+                    game->table[i][j] = 'V';
+                }
             }
         }
     }
-    // TODO: 5. Marcar las posibles jugadas de la reina que pueden ser eliminadas por las torres
-    // 6. Mostrar el tablero con las jugadas posibles de la reina
+    // determinar las jugadas
     printTable(&game->table);
 }
 
-int readInt()
-{
+int readInt() {
     int value;
-    while (!(cin >> value))
-    {
+    while (!(cin >> value)) {
         cout << "Ingrese un valor válido: ";
         cin.clear();
         cin.ignore(123, '\n');
@@ -172,11 +191,11 @@ int readInt()
     return value;
 }
 
-void run()
-{
+#include <cstring>
+
+void run() {
     Game game = {};
-    while (true)
-    {
+    while (true) {
         cout << "Presione: \n"
              << "   0) - Para salir del programa.\n"
              << "   1) - Para colocar a las torres y la reina.\n"
@@ -187,8 +206,7 @@ void run()
         int option = readInt();
         cout << endl;
 
-        switch (option)
-        {
+        switch (option) {
         case 0:
             cout << "Saliendo del programa...\n";
             exit(0);
@@ -210,10 +228,8 @@ void run()
     }
 }
 
-int main(int argc, char const *argv[])
-{
-    cout << "Corriendo programa Reina vs Torres...\n"
-         << endl;
+int main(int argc, char const* argv[]) {
+    cout << "Corriendo programa Reina vs Torres...\n" << endl;
     run();
     return 0;
 }
