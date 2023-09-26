@@ -205,7 +205,7 @@ private:
     void destroyTree(Node* node) {
         if (node) {
             // Si el nodo no es nulo, llamamos recursivamente a la función para los hijos izquierdo y derecho.
-            destroyTree(node->left);
+            destroyTree(node->left); 
             destroyTree(node->right);
             // Luego, liberamos la memoria del nodo actual.
             delete node;
