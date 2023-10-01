@@ -52,7 +52,6 @@ void run() {
         cout << "Seleccione una opción: " << endl;
         cout <<  "0. Salir" << endl;
         cout <<  "1. Resolver Torres de Hanoi" << endl;
-        cout <<  "2. Resolver Torres de Hanoi con N discos" << endl;
         cout << "Opción: ";
         int option = readInt();
         cout << endl;
@@ -65,11 +64,6 @@ void run() {
         case 1:
             getDisks();
             cout << "Total de movimientos: " << totalMoves << endl;
-            break;
-        case 2:
-
-            break;
-        case 3:
             break;
         default:
             break;
