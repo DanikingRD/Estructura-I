@@ -14,6 +14,14 @@
 #include <iostream>
 using namespace std;
 
+const unsigned int MAX = 40;
+
+struct Student;
+int readInt();
+string readStr();
+Student* createStudent(int studentId);
+void printTable(Student* current, int slot);
+
 struct Student {
     int id;
     string name;
@@ -22,12 +30,18 @@ struct Student {
     Student* next;
 };
 
-const unsigned int MAX = 40;
-
 Student hash_table[MAX] = {};
-int readInt();
-string readStr();
-Student* createStudent(int studentId);
+
+void displayHashTable() {
+    cout << " * Imprimiendo tabla hash..." << endl;
+    for (int i = 0; i < MAX; i++) {
+        Student* current = &hash_table[i];
+        while (current) {
+            printTable(current, i);
+            current = current->next;
+        }
+    }
+}
 
 int hashfn(int id) { return id % MAX; }
 
@@ -57,6 +71,25 @@ void insertStudent(int studentId) {
     cout << " * Estudiante insertado en slot #" << table_index << endl;
 }
 
+void get(int studentId) {
+    // Resumen de pasos:
+    // 1) Hashear el id del estudiante
+    // 2) Buscar el bucket correspondiente
+    // 3) Recorrer la lista enlazada hasta encontrar el estudiante
+    // 4) Imprimir el estudiante
+    cout << "Buscando estudiante con Id: " << studentId << endl;
+    int hash = hashfn(studentId);
+    Student* entry = &hash_table[hash];
+    while (entry) {
+        if (entry->id == studentId) {
+            printTable(entry, hash);
+            return;
+        }
+        entry = entry->next;
+    }
+    cout << "No se encontró el estudiante con id: " << studentId << endl;
+}   
+
 Student* createStudent(int studentId) {
     cout << "Ingrese el nombre del estudiante: ";
     string name = readStr();
@@ -74,54 +107,31 @@ Student* createStudent(int studentId) {
     return student;
 }
 
-void displayHashTable() {
-    cout << " * Imprimiendo tabla hash..." << endl;
-    for (int i = 0; i < MAX; i++) {
-        Student* current = &hash_table[i];
-        while (current) {
-            // draw some sort of pretty table
-            string id = to_string(current->id);
-            string name = current->name;
-            string coordinator = current->coordinator;
-            string academic_idx = to_string(current->academic_idx);
-            // calculate the width of each field
-            int next_width =
-                current->next ? to_string(current->next->id).length() : 4;
-            string nextPtr =
-                current->next ? to_string(current->next->id) : "null";
-            // pad the fields with spaces to ensure that the display borders are
-            // fixed
-            int extra_padding = 2;
-            string id_padded = string(35 - id.length(), ' ') + id;
-            string name_padded = string(31 - name.length(), ' ') + name;
-            string coordinator_padded =
-                string(26 - coordinator.length(), ' ') + coordinator;
-            string academic_idx_padded =
-                string(21 - academic_idx.length(), ' ') + academic_idx;
-            string next_padded = string(28 - next_width, ' ') + nextPtr;
+string padString(string str, int width) {
+    return string(width - str.length(), ' ') + str;
+}
 
-            if (i > 9)
-                cout << "\033[1;33m┌───────────────── \033[0m"
-                     << "Slot#" << i << "\033[1;33m ──────────────┐\033[0m"
-                     << endl;
-            else
-                cout << "\033[1;33m┌────────────────── \033[0m"
-                     << "Slot#" << i << "\033[1;33m ──────────────┐\033[0m"
-                     << endl;
-            cout << "\033[1;33m│ Id: " << id_padded << "│\033[0m" << endl;
-            cout << "\033[1;33m│ Nombre: " << name_padded << "│\033[0m" << endl;
-            cout << "\033[1;33m│ Coordinador: " << coordinator_padded
-                 << "│ \033[0m" << endl;
-            cout << "\033[1;33m│ Indice académico: " << academic_idx_padded
-                 << "│\033[0m" << endl;
-            cout << "\033[1;33m│ Siguiente: " << next_padded << "│\033[0m"
-                 << endl;
-            cout
-                << "\033[1;33m└────────────────────────────────────────┘\033[0m"
-                << endl;
-            current = current->next;
-        }
-    }
+void printTable(Student* current, int slot) {
+    string id_pad = padString(to_string(current->id), 35);
+    string name_padded = padString(current->name, 31);
+    string coordinator_padded = padString(current->coordinator, 26);
+    string academic_idx_padded =
+        padString(to_string(current->academic_idx), 21);
+    string nextPtr = current->next ? to_string(current->next->id) : "null";
+    string next_padded = padString(nextPtr, 28);
+
+    if (slot > 9)
+        cout << "┌─────────────────"
+             << " Slot#" << slot << " ──────────────┐" << endl;
+    else
+        cout << "┌──────────────────"
+             << " Slot#" << slot << " ──────────────┐  " << endl;
+    cout << "│ Id: " << id_pad << "│ " << endl;
+    cout << "│ Nombre: " << name_padded << "│ " << endl;
+    cout << "│ Coordinador: " << coordinator_padded << "│ " << endl;
+    cout << "│ Indice académico: " << academic_idx_padded << "│" << endl;
+    cout << "│ Siguiente: " << next_padded << "│" << endl;
+    cout << "└────────────────────────────────────────┘" << endl;
 }
 
 string readStr() {
@@ -151,6 +161,7 @@ void run() {
         cout << "Seleccione una opción: " << endl;
         cout << "0. Salir" << endl;
         cout << "1. Insertar un estudiante." << endl;
+        cout << "2. Buscar un estudiante." << endl;
         cout << "4. Para mostrar la tabla hash." << endl;
         cout << "Opción: ";
         int option = readInt();
@@ -167,6 +178,12 @@ void run() {
             studentId = readInt();
             cout << "Insertando estudiante con Id: " << studentId << endl;
             insertStudent(studentId);
+            break;
+        case 2:
+            cout << "Ingrese el id del estudiante: ";
+            studentId = readInt();
+            get(studentId);
+            // TODO: Check if empty
             break;
         case 4:
             displayHashTable();
