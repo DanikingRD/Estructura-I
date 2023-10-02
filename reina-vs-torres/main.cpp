@@ -129,40 +129,95 @@ void setPositions() {
     }
 }
 
+bool isPosBlocked(int currentRow, int currentCol) {
+    int queenRow = game.queenPos[0];
+    int queenCol = game.queenPos[1];
+    for (int i = 0; i < 2; i++) {
+        int towerRow = game.towerPos[i][0];
+        int towerCol = game.towerPos[i][1];
 
-void checkMove(int i, int j, Pos towerA, Pos towerB) {
-    int x = game.queenPos[0];
-    int y = game.queenPos[1];
+        bool towerOnDiagonal =
+            abs(queenRow - towerRow) == abs(queenCol - towerCol);
+        bool nextQueenPosOnDiagonal =
+            abs(queenRow - currentRow) == abs(queenCol - currentCol);
 
+        if (!towerOnDiagonal) {
+            bool isTowerOnSameRow = queenRow == towerRow;
+            if (queenRow == currentRow && isTowerOnSameRow) {
+                if (queenCol < towerCol && towerCol < currentCol) {
+                    return true;
+                }
+                if (queenCol > towerCol && towerCol > currentCol) {
+                    return true;
+                }
+            }
+
+            bool isTowerOnSameCol = queenCol == towerCol;
+            if (queenCol == currentCol && isTowerOnSameCol) {
+                if (queenRow < towerRow && towerRow < currentRow) {
+                    return true;
+                }
+                if (queenRow > towerRow && towerRow > currentRow) {
+                    return true;
+                }
+            }
+        } else if (nextQueenPosOnDiagonal) {
+            // better diagonal collisions
+            if (queenRow < towerRow && towerRow < currentRow) {
+                if (queenCol < towerCol && towerCol < currentCol) {
+                    return true;
+                }
+                if (queenCol > towerCol && towerCol > currentCol) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false; // Position is not blocked by towers
 }
+
+bool towerKillsQueen(int towerX, int towerY, int checkX, int checkY) {
+    if (towerX == checkX || towerY == checkY) {
+        return true;
+    }
+    return false; 
+}
+
 void generateQueenMoves() {
-    int queenX = game.queenPos[0];
-    int queenY = game.queenPos[1];
+    int queenCol = game.queenPos[0];
+    int queenRow = game.queenPos[1];
     Pos& towerA = game.towerPos[0];
     Pos& towerB = game.towerPos[1];
 
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
-            Pos checkPos = {i, j};
-
-            bool skipQueen = queenX == i && queenY == j;
+            bool skipQueen = queenCol == i && queenRow == j;
             bool skipTowerA = towerA[0] == i && towerA[1] == j;
             bool skipTowerB = towerB[0] == i && towerB[1] == j;
 
             if (skipQueen || skipTowerA || skipTowerB)
                 continue;
 
-            bool isDiagonalMove = std::abs(i - queenX) == std::abs(j - queenY);
-            bool isQueenMove = isDiagonalMove || i == queenX || j == queenY;
+            bool isDiagonalMove =
+                std::abs(i - queenCol) == std::abs(j - queenRow);
+            bool isQueenMove = isDiagonalMove || i == queenCol || j == queenRow;
 
-            if (isQueenMove) {
-                checkMove(i, j, towerA, towerB);
+            if (i == queenCol || j == queenRow || isDiagonalMove) {
+                if (!isPosBlocked(i, j)) {
+                    bool eliminatedByTowerA = towerKillsQueen(towerA[0], towerA[1], i, j);
+                    bool eliminatedByTowerB = towerKillsQueen(towerB[0], towerB[1], i, j);
+
+                    if (eliminatedByTowerA || eliminatedByTowerB) {
+                        game.table[i][j] = IS_ELIMINATED;
+                    } else {
+                        game.table[i][j] = CAN_PLAY;
+                    }
+                }
             }
         }
     }
     printTable();
 }
-
 
 int readInt() {
     int value;
