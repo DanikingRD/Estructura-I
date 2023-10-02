@@ -167,11 +167,10 @@ void run() {
         cout << "Opción: ";
         int option = readInt();
         cout << endl;
-
+        bool exit = false;
         switch (option) {
         case 0:
-            cout << "Saliendo del programa...\n";
-            exit(0);
+            exit = true;
             break;
         case 1:
             cout << "Ingrese el id del estudiante: ";
@@ -197,7 +196,24 @@ void run() {
             break;
         }
         cout << endl;
+
+        if (exit) {
+            cout << "Saliendo del programa...\n";
+            // free memory
+            for (int i = 0; i < MAX; i++) {
+                Student* bucket = &hash_table[i];
+                // delete all linked lists in the bucket
+                while (bucket && bucket->id) {
+                    Student* next = bucket->next;
+                    delete bucket;
+                    bucket = next;
+                }
+        
+            }
+            break;
+        }
     }
+    
 }
 
 int main(void) {
