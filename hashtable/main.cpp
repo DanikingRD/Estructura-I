@@ -141,7 +141,7 @@ string readStr() {
         cin.clear();
         cin.ignore(123, '\n');
     }
-    std::cin.ignore();
+    cin.ignore(123, '\n');
     return value;
 }
 
@@ -152,6 +152,7 @@ int readInt() {
         cin.clear();
         cin.ignore(123, '\n');
     }
+    cin.ignore(123, '\n');
     return value;
 }
 
@@ -162,7 +163,7 @@ void run() {
         cout << "0. Salir" << endl;
         cout << "1. Insertar un estudiante." << endl;
         cout << "2. Buscar un estudiante." << endl;
-        cout << "4. Para mostrar la tabla hash." << endl;
+        cout << "3. Para mostrar la tabla hash." << endl;
         cout << "Opción: ";
         int option = readInt();
         cout << endl;
@@ -180,12 +181,16 @@ void run() {
             insertStudent(studentId);
             break;
         case 2:
+            //check if empty
+            if (!hash_table[0].id) {
+                cout << " * Tabla vacía. Inserte un estudiante primero." << endl;
+                break;
+            }
             cout << "Ingrese el id del estudiante: ";
             studentId = readInt();
             get(studentId);
-            // TODO: Check if empty
             break;
-        case 4:
+        case 3:
             displayHashTable();
             break;
         default:
