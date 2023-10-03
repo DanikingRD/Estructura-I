@@ -18,14 +18,15 @@ int readInt();
 int totalMoves = 0;
 // src = source, aux = auxiliary, dest = destination, n = number of disks
 void hanoi(int n, char src, char aux, char dst) {
-    totalMoves++;
     if (n == 1) {
-        cout << "Se mueve anillo " << n << " de " << src << " a " << dst << endl;
+        cout << "Se mueve anillo 1 de " << src << " a " << dst << endl;
+        totalMoves++;
         return;
     }
-    hanoi(n - 1, src, aux, dst);
-    cout << "Se mueve el anillo " << n << " de " << src << " a " << dst << endl;
-    hanoi(n - 1, aux, dst, src);
+    hanoi(n - 1, src, dst, aux);
+    cout << "Se mueve anillo " << n << " de " << src << " a " << dst << endl;
+    totalMoves++;
+    hanoi(n - 1, aux, src, dst);
 }
 
 void getDisks() {
@@ -50,8 +51,8 @@ int readInt() {
 void run() {
     while (true) {
         cout << "Seleccione una opción: " << endl;
-        cout <<  "0. Salir" << endl;
-        cout <<  "1. Resolver Torres de Hanoi" << endl;
+        cout << "0. Salir" << endl;
+        cout << "1. Resolver Torres de Hanoi" << endl;
         cout << "Opción: ";
         int option = readInt();
         cout << endl;
@@ -73,7 +74,7 @@ void run() {
     }
 }
 
-int main(void) {    
+int main(void) {
     cout << "Corriendo programa Torres de Hanoi...\n" << endl;
     run();
     return 0;
