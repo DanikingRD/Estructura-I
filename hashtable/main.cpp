@@ -32,10 +32,15 @@ int ID_LIST[] = {1115075, 1116614, 1114790, 1113810, 1114116, 1115242, 1116238,
 const unsigned int ID_COUNT = sizeof(ID_LIST) / sizeof(ID_LIST[0]);
 
 struct Student {
+    // Codigo del estudiante
     int id;
+    // Nombre del estudiante
     string name;
-    string coordinator;
+    // Codigo de la carrera
+    string code;
+    // Indice academico
     int academic_idx;
+    // Puntero al siguiente estudiante
     Student* next;
 };
 
@@ -139,12 +144,12 @@ void update(int studentId) {
 void updateStudent(Student* student) {
     cout << "Ingrese el nombre del estudiante: ";
     string name = readStr();
-    cout << "Ingrese el nombre del coordinador: ";
+    cout << "Ingrese el codigo de carrera: ";
     string coordinator = readStr();
     cout << "Ingrese el indice académico del estudiante: ";
     int academic_idx = readInt();
     student->name = name;
-    student->coordinator = coordinator;
+    student->code = coordinator;
     student->academic_idx = academic_idx;
 }
 
@@ -217,7 +222,7 @@ void printTable(Student* current, int slot) {
     string nextPtr = current->next ? to_string(current->next->id) : "null";
     cout << "│ Id: " << padString(to_string(current->id), 35) << "│ " << endl;
     cout << "│ Nombre: " << padString(current->name, 31) << "│ " << endl;
-    cout << "│ Coordinador: " << padString(current->coordinator, 26) << "│ "
+    cout << "│ Codigo de carrera: " << padString(current->code, 20) << "│ "
          << endl;
     cout << "│ Indice académico: "
          << padString(to_string(current->academic_idx), 21) << "│" << endl;
