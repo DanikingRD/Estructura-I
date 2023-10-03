@@ -110,6 +110,8 @@ void setPositions() {
         // actualiza el tablero
         int x = pos[0] - 1;
         int y = pos[1] - 1;
+
+        // == Actualiza el estado del juego ==
         game.table[x][y] = tags[i];
         switch (tags[i]) {
         case QUEEN:
