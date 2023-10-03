@@ -8,7 +8,7 @@
  *              1114950 - Elian Gabriel Villegas Báez
  *              1116614 - Luis Daniel de la Cruz García
  *              1116623 - Aquilenyi Suero de los Santos
- * FECHA: 17/09/2023 <== Fecha de realización
+ * FECHA: 27/09/2023 <== Fecha de realización
  */
 
 #include <iostream>
@@ -22,36 +22,37 @@ const char TOWER = 'T';
 const char QUEEN = 'R';
 const char CAN_PLAY = 'V';
 const char IS_ELIMINATED = 'X';
-
+// Representa el tablero de juego
 typedef int Table[ROWS][COLS];
+// Representa una posición en el tablero
 typedef int Pos[2];
 
+void readPos(Pos& pos, const char* ficha);
+bool isPosBlocked(int currentRow, int currentCol);
+bool towerKillsQueen(int towerX, int towerY, int checkX, int checkY);
+
+// Contiene la información del juego
 struct Game {
     Table table;
     Pos queenPos;
     Pos towerPos[2];
 };
 
+// Instancia del juego
 Game game = {};
 
-bool isPosOutOfBounds(int x, int y) {
-    return x < 1 || x > ROWS || y < 1 || y > COLS;
-}
-
+// Imprime el tablero de juego
 void printTable() {
     cout << "  ";
-    // Imprime las columnas
     for (int i = 0; i < COLS; i++) {
-        cout << (i + 1) << " ";
+        cout << (i + 1) << " "; // Imprime las columnas
     }
     cout << endl;
     for (int i = 0; i < ROWS; i++) {
         cout << (i + 1) << " "; // Imprime las filas
         for (int j = 0; j < COLS; j++) {
-
             char value = game.table[i][j];
-
-            if (value == 0) {
+            if (!value) { // Posición vacía
                 cout << "- ";
                 continue;
             }
@@ -68,49 +69,44 @@ void printTable() {
     cout << endl;
 }
 
-bool checkPos(Pos* pos) {
+/*
+ * Verifica si la posición ingresada es válida.
+ * Una posición es válida si está dentro de los límites del tablero
+ */
+bool isPosValid(Pos* pos) {
 
-    int x = (*pos)[0];
-    int y = (*pos)[1];
+    int row = (*pos)[0];
+    int col = (*pos)[1];
 
-    if (isPosOutOfBounds(x, y)) {
-        cout << "La posición (" << x << ", " << y
+    if (row < 1 || row > ROWS || col < 1 || col > COLS) {
+        cout << "La posición (" << row << ", " << col
              << ") está fuera de los límites del tablero.\n";
         return false;
     }
 
-    int row = x - 1;
-    int col = y - 1;
+    int i = row - 1;
+    int j = col - 1;
 
     if (game.table[row][col] != 0) {
-        cout << "La posición (" << x << ", " << y << ") ya está ocupada.\n";
+        cout << "La posición (" << row << ", " << col << ") ya está ocupada.\n";
         return false;
     }
     return true;
 }
 
-void readPosition(Pos& pos, const char* ficha) {
-    cout << "Ingrese la posición de la " << ficha << " (fila, columna): ";
-    while (!(cin >> pos[0] >> pos[1])) {
-        cout << "Ingrese un posición válida: (fila, columna) ";
-        cin.clear();
-        cin.ignore(123, '\n');
-    }
-    cout << " * Posición de la " << ficha << ": (" << pos[0] << ", " << pos[1]
-         << ")\n";
-}
-
+/*
+ * Coloca las torres y la reina en el tablero
+ */
 void setPositions() {
     printTable();
     const unsigned int pieces = 3;
     const char* names[] = {"reina", "torre 1", "torre 2"};
     const char tags[] = {QUEEN, TOWER, TOWER};
-
     for (int i = 0; i < pieces; i++) {
         Pos pos = {};
         do {
-            readPosition(pos, names[i]);
-        } while (!checkPos(&pos));
+            readPos(pos, names[i]);
+        } while (!isPosValid(&pos));
         // actualiza el tablero
         int x = pos[0] - 1;
         int y = pos[1] - 1;
@@ -129,60 +125,9 @@ void setPositions() {
     }
 }
 
-bool isPosBlocked(int currentRow, int currentCol) {
-    int queenRow = game.queenPos[0];
-    int queenCol = game.queenPos[1];
-    for (int i = 0; i < 2; i++) {
-        int towerRow = game.towerPos[i][0];
-        int towerCol = game.towerPos[i][1];
-
-        bool towerOnDiagonal =
-            abs(queenRow - towerRow) == abs(queenCol - towerCol);
-        bool nextQueenPosOnDiagonal =
-            abs(queenRow - currentRow) == abs(queenCol - currentCol);
-
-        if (!towerOnDiagonal) {
-            bool isTowerOnSameRow = queenRow == towerRow;
-            if (queenRow == currentRow && isTowerOnSameRow) {
-                if (queenCol < towerCol && towerCol < currentCol) {
-                    return true;
-                }
-                if (queenCol > towerCol && towerCol > currentCol) {
-                    return true;
-                }
-            }
-
-            bool isTowerOnSameCol = queenCol == towerCol;
-            if (queenCol == currentCol && isTowerOnSameCol) {
-                if (queenRow < towerRow && towerRow < currentRow) {
-                    return true;
-                }
-                if (queenRow > towerRow && towerRow > currentRow) {
-                    return true;
-                }
-            }
-        } else if (nextQueenPosOnDiagonal) {
-            // better diagonal collisions
-            if (queenRow < towerRow && towerRow < currentRow) {
-                if (queenCol < towerCol && towerCol < currentCol) {
-                    return true;
-                }
-                if (queenCol > towerCol && towerCol > currentCol) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false; // Position is not blocked by towers
-}
-
-bool towerKillsQueen(int towerX, int towerY, int checkX, int checkY) {
-    if (towerX == checkX || towerY == checkY) {
-        return true;
-    }
-    return false; 
-}
-
+/*
+ * Genera los movimientos posibles de la reina
+ */
 void generateQueenMoves() {
     int queenCol = game.queenPos[0];
     int queenRow = game.queenPos[1];
@@ -200,23 +145,104 @@ void generateQueenMoves() {
 
             bool isDiagonalMove =
                 std::abs(i - queenCol) == std::abs(j - queenRow);
+
             bool isQueenMove = isDiagonalMove || i == queenCol || j == queenRow;
 
-            if (i == queenCol || j == queenRow || isDiagonalMove) {
-                if (!isPosBlocked(i, j)) {
-                    bool eliminatedByTowerA = towerKillsQueen(towerA[0], towerA[1], i, j);
-                    bool eliminatedByTowerB = towerKillsQueen(towerB[0], towerB[1], i, j);
+            if (!isQueenMove) {
+                // salta si no es un movimiento válido de la reina
+                continue;
+            }
 
-                    if (eliminatedByTowerA || eliminatedByTowerB) {
-                        game.table[i][j] = IS_ELIMINATED;
-                    } else {
-                        game.table[i][j] = CAN_PLAY;
-                    }
+            if (!isPosBlocked(i, j)) {
+                bool eliminatedByTowerA =
+                    towerKillsQueen(towerA[0], towerA[1], i, j);
+                bool eliminatedByTowerB =
+                    towerKillsQueen(towerB[0], towerB[1], i, j);
+                if (eliminatedByTowerA || eliminatedByTowerB) {
+                    game.table[i][j] = IS_ELIMINATED;
+                } else {
+                    game.table[i][j] = CAN_PLAY;
                 }
             }
         }
     }
     printTable();
+}
+
+/*
+ * Determina si la posible siguiente posición de la reina
+ * está bloqueada por alguna de las torres
+ */
+bool isPosBlocked(int currentRow, int currentCol) {
+    int queenRow = game.queenPos[0];
+    int queenCol = game.queenPos[1];
+    for (int i = 0; i < 2; i++) {
+        int towerRow = game.towerPos[i][0];
+        int towerCol = game.towerPos[i][1];
+
+        bool diagonalTower =
+            abs(queenRow - towerRow) == abs(queenCol - towerCol);
+        bool diagonalQueenPos =
+            abs(queenRow - currentRow) == abs(queenCol - currentCol);
+
+        if (!diagonalTower) {
+            bool isTowerOnQueenRow = queenRow == towerRow;
+            if (queenRow == currentRow && isTowerOnQueenRow) {
+                if (queenCol < towerCol && towerCol < currentCol) {
+                    return true;
+                }
+                if (queenCol > towerCol && towerCol > currentCol) {
+                    return true;
+                }
+            }
+            bool isTowerOnQueenCol = queenCol == towerCol;
+            if (queenCol == currentCol && isTowerOnQueenCol) {
+                if (queenRow < towerRow && towerRow < currentRow) {
+                    return true;
+                }
+                if (queenRow > towerRow && towerRow > currentRow) {
+                    return true;
+                }
+            }
+        } else if (diagonalQueenPos) {
+            // La torre esta en la misma diagonal que la reina
+            // y a su vez la posible siguiente posición de la reina también es
+            // diagonal
+            if (queenRow < towerRow && towerRow < currentRow) {
+                if (queenCol < towerCol && towerCol < currentCol) {
+                    return true;
+                }
+                if (queenCol > towerCol && towerCol > currentCol) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false; // Position is not blocked by towers
+}
+
+/*
+ * Determina si la torre en la posición (towerX, towerY) mata a la reina
+ */
+bool towerKillsQueen(int towerX, int towerY, int checkX, int checkY) {
+    if (towerX == checkX || towerY == checkY) {
+        return true;
+    }
+    return false;
+}
+
+/*
+ * Lee una posición del tablero
+ */
+void readPos(Pos& pos, const char* ficha) {
+    cout << "Ingrese la posición de la " << ficha << " (fila, columna): ";
+    while (!(cin >> pos[0] >> pos[1])) {
+        cout << "Ingrese un posición válida: (fila, columna) ";
+        cin.clear();
+        cin.ignore(123, '\n');
+    }
+    cout << " * Posición de la " << ficha << ": (" << pos[0] << ", " << pos[1]
+         << ")\n";
 }
 
 int readInt() {
