@@ -18,7 +18,8 @@ using namespace std;
 struct Student;
 int readInt();
 string readStr();
-Student* createStudent(int studentId, bool idOnly);
+Student* createStudent(int studentId);
+void updateStudent(Student* student);
 void printTable(Student* current, int slot);
 
 int IDS[] = {1115075, 1116614, 1114790, 1113810, 1114116, 1115242, 1116238,
@@ -38,8 +39,12 @@ struct Student {
     Student* next;
 };
 
+// Tabla hash
 Student table[TOTAL_ID_COUNT] = {};
 
+/*
+ * Verifica si un arreglo de enteros contiene un valor dado. 
+*/
 bool arrayContains(int* arr, int size, int value) {
     for (int i = 0; i < size; i++) {
         if (arr[i] == value)
@@ -48,66 +53,99 @@ bool arrayContains(int* arr, int size, int value) {
     return false;
 }
 
-// Regresa un número entre 0 y MAX
-int hashFN(int id) { return id % TOTAL_ID_COUNT; };
-
-Student* createStudent(int studentId, bool idOnly) {
-    if (idOnly) {
-        Student* student = new (Student){
-            .id = studentId,
-            .next = 0,
-        };
-        return student;
-    }
-    cout << "Ingrese el nombre del estudiante: ";
-    string name = readStr();
-    cout << "Ingrese el nombre del coordinador: ";
-    string coordinator = readStr();
-    cout << "Ingrese el indice académico del estudiante: ";
-    int academic_idx = readInt();
-
-    Student* student = new (Student){
-        .id = studentId,
-        .name = name,
-        .coordinator = coordinator,
-        .academic_idx = academic_idx,
-        .next = 0,
-    };
+/**
+ * Crea un nuevo estudiante con el id dado.
+ * y valores por defecto para los demás campos.
+*/
+Student* createStudent(int studentId) {
+    Student *student = new Student();
+    student->id = studentId;
+    student->next = 0;
     return student;
 }
 
-void insertStudent(int studentId, bool idOnly = false) {
+/*
+* Función hash de la tabla hash.
+* Esta implementacion hace uso del modulo 
+* para obtener el bucket correspondiente.
+*/
+int hashFN(int id) { return id % TOTAL_ID_COUNT; };
+
+
+/*
+* Inserta un estudiante en la tabla hash.
+* También se encarga de resolver colisiones,
+* mediante el uso de listas enlazadas.
+*/
+void insert(int studentId) {
     if (!arrayContains(IDS, TOTAL_ID_COUNT, studentId)) {
         cout << "El estudiante con id: " << studentId
              << " no está en el curso.\n";
         return;
     }
-    Student* st = 0;
+    Student* newStudent = 0;
     int bucket = hashFN(studentId);
 
     if (table[bucket].id) {
         // resolver colisión
         Student* current = &table[bucket];
         while (current->next) {
-            current = current->next;
+             current = current->next;
         }
-        st = createStudent(studentId, idOnly);
-        current->next = st;
+        newStudent = createStudent(studentId);
+        current->next = newStudent;
     } else {
-        // insertar en bucket, no hay colisión
+        // insertar directamente, no hay colisión
         // será la cabeza de la lista enlazada
-        st = createStudent(studentId, idOnly);
-        table[bucket] = *st;
+        newStudent = createStudent(studentId);
+        table[bucket] = *newStudent;
     }
     cout << " * Estudiante insertado en slot #" << bucket << endl;
 }
 
-void populate() {
+/*
+* Llena la tabla hash con los ids de los estudiantes.
+*/
+void populateTable() {
     for (int i = 0; i < TOTAL_ID_COUNT; i++) {
-        int studentId = IDS[i];
-        int index = hashFN(i);
-        insertStudent(studentId, true);
+        insert(IDS[i]);
     }
+}
+
+/*
+ * Busca un estudiante en la tabla hash para actualizar sus campos.
+*/
+void update(int studentId) {
+    if (!arrayContains(IDS, TOTAL_ID_COUNT, studentId)) {
+        cout << "El estudiante con id: " << studentId
+             << " no está en el curso.\n";
+        return;
+    }
+    int bucket = hashFN(studentId);
+    Student* student = &table[bucket];
+    while (student) {
+        if (student->id == studentId) {
+            cout << " * Estudiante encontrado en slot #" << bucket << endl;
+            updateStudent(student);
+            return;
+        }
+        student = student->next;
+    }
+}
+
+/*
+* Actualiza los campos de un estudiante.
+*/
+void updateStudent(Student* student) {
+    cout << "Ingrese el nombre del estudiante: ";
+    string name = readStr();
+    cout << "Ingrese el nombre del coordinador: ";
+    string coordinator = readStr();
+    cout << "Ingrese el indice académico del estudiante: ";
+    int academic_idx = readInt();
+    student->name = name;
+    student->coordinator = coordinator;
+    student->academic_idx = academic_idx;
 }
 
 void displayHashTable() {
@@ -187,7 +225,7 @@ int readInt() {
 }
 
 void run() {
-    populate();
+    populateTable();
     displayHashTable();
     while (true) {
         cout << "Seleccione una opción: " << endl;
@@ -207,7 +245,7 @@ void run() {
             cout << "Ingrese el id del estudiante: ";
             int studentId;
             studentId = readInt();
-            insertStudent(studentId);
+            update(studentId);
             break;
         case 2:
             cout << "Ingrese el id del estudiante: ";
