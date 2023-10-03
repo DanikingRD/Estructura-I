@@ -178,6 +178,29 @@ void searchStudent(int studentId) {
     cout << "No se encontró el estudiante con id: " << studentId << endl;
 }
 
+// ----------------------  Funciones no relacionadas a la tabla hash ----------------------
+string readStr() {
+    string value;
+    while (!(cin >> value)) {
+        cout << "Ingrese un valor válido: ";
+        cin.clear();
+        cin.ignore(123, '\n');
+    }
+    cin.ignore(123, '\n');
+    return value;
+}
+
+int readInt() {
+    int value;
+    while (!(cin >> value)) {
+        cout << "Ingrese un valor válido: ";
+        cin.clear();
+        cin.ignore(123, '\n');
+    }
+    cin.ignore(123, '\n');
+    return value;
+}
+
 string padString(string str, int width) {
     return string(width - str.length(), ' ') + str;
 }
@@ -202,27 +225,6 @@ void printTable(Student* current, int slot) {
     cout << "└────────────────────────────────────────┘" << endl;
 }
 
-string readStr() {
-    string value;
-    while (!(cin >> value)) {
-        cout << "Ingrese un valor válido: ";
-        cin.clear();
-        cin.ignore(123, '\n');
-    }
-    cin.ignore(123, '\n');
-    return value;
-}
-
-int readInt() {
-    int value;
-    while (!(cin >> value)) {
-        cout << "Ingrese un valor válido: ";
-        cin.clear();
-        cin.ignore(123, '\n');
-    }
-    cin.ignore(123, '\n');
-    return value;
-}
 
 void run() {
     populateTable();
