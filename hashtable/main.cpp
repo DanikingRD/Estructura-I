@@ -22,14 +22,14 @@ Student* createStudent(int studentId);
 void updateStudent(Student* student);
 void printTable(Student* current, int slot);
 
-int IDS[] = {1115075, 1116614, 1114790, 1113810, 1114116, 1115242, 1116238,
+int ID_LIST[] = {1115075, 1116614, 1114790, 1113810, 1114116, 1115242, 1116238,
              1113902, 1109094, 1114056, 1114814, 1113684, 1116176, 1087257,
              1116783, 1115079, 1114306, 1116906, 1115419, 1114204, 1115989,
              1115915, 1116733, 1114290, 1113744, 1114441, 1115997, 1114531,
              1115279, 1115395, 1114042, 1114343, 1116842, 1105307, 1113891,
              1116623, 1116351, 1114929, 1114331, 1114950};
 
-const unsigned int TOTAL_ID_COUNT = sizeof(IDS) / sizeof(IDS[0]);
+const unsigned int ID_COUNT = sizeof(ID_LIST) / sizeof(ID_LIST[0]);
 
 struct Student {
     int id;
@@ -40,7 +40,7 @@ struct Student {
 };
 
 // Tabla hash
-Student table[TOTAL_ID_COUNT] = {};
+Student table[ID_COUNT] = {};
 
 /*
  * Verifica si un arreglo de enteros contiene un valor dado. 
@@ -69,7 +69,7 @@ Student* createStudent(int studentId) {
 * Esta implementacion hace uso del modulo 
 * para obtener el bucket correspondiente.
 */
-int hashFN(int id) { return id % TOTAL_ID_COUNT; };
+int hashFN(int id) { return id % ID_COUNT; };
 
 
 /*
@@ -78,7 +78,7 @@ int hashFN(int id) { return id % TOTAL_ID_COUNT; };
 * mediante el uso de listas enlazadas.
 */
 void insert(int studentId) {
-    if (!arrayContains(IDS, TOTAL_ID_COUNT, studentId)) {
+    if (!arrayContains(ID_LIST, ID_COUNT, studentId)) {
         cout << "El estudiante con id: " << studentId
              << " no está en el curso.\n";
         return;
@@ -107,8 +107,8 @@ void insert(int studentId) {
 * Llena la tabla hash con los ids de los estudiantes.
 */
 void populateTable() {
-    for (int i = 0; i < TOTAL_ID_COUNT; i++) {
-        insert(IDS[i]);
+    for (int i = 0; i < ID_COUNT; i++) {
+        insert(ID_LIST[i]);
     }
 }
 
@@ -116,7 +116,7 @@ void populateTable() {
  * Busca un estudiante en la tabla hash para actualizar sus campos.
 */
 void update(int studentId) {
-    if (!arrayContains(IDS, TOTAL_ID_COUNT, studentId)) {
+    if (!arrayContains(ID_LIST, ID_COUNT, studentId)) {
         cout << "El estudiante con id: " << studentId
              << " no está en el curso.\n";
         return;
@@ -150,7 +150,7 @@ void updateStudent(Student* student) {
 
 void displayHashTable() {
     cout << " * Imprimiendo tabla hash..." << endl;
-    for (int i = 0; i < TOTAL_ID_COUNT; i++) {
+    for (int i = 0; i < ID_COUNT; i++) {
         Student* current = &table[i];
         while (current) {
             printTable(current, i);
@@ -262,7 +262,7 @@ void run() {
             cout << "Saliendo del programa...\n";
             cout << "Liberando memoria...\n";
             // free memory
-            for (int i = 0; i < TOTAL_ID_COUNT; i++) {
+            for (int i = 0; i < ID_COUNT; i++) {
                 Student* current = table[i].next; 
                 while (current) {
                     Student* temp = current; 
