@@ -87,7 +87,7 @@ bool isPosValid(Pos* pos) {
     int i = row - 1;
     int j = col - 1;
 
-    if (game.table[row][col] != 0) {
+    if (game.table[i][j] != 0) {
         cout << "La posición (" << row << ", " << col << ") ya está ocupada.\n";
         return false;
     }
@@ -125,50 +125,6 @@ void setPositions() {
         }
         printTable();
     }
-}
-
-/*
- * Genera los movimientos posibles de la reina
- */
-void generateQueenMoves() {
-    int queenCol = game.queenPos[0];
-    int queenRow = game.queenPos[1];
-    Pos& towerA = game.towerPos[0];
-    Pos& towerB = game.towerPos[1];
-
-    for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < COLS; j++) {
-            bool skipQueen = queenCol == i && queenRow == j;
-            bool skipTowerA = towerA[0] == i && towerA[1] == j;
-            bool skipTowerB = towerB[0] == i && towerB[1] == j;
-
-            if (skipQueen || skipTowerA || skipTowerB)
-                continue;
-
-            bool isDiagonalMove =
-                std::abs(i - queenCol) == std::abs(j - queenRow);
-
-            bool isQueenMove = isDiagonalMove || i == queenCol || j == queenRow;
-
-            if (!isQueenMove) {
-                // salta si no es un movimiento válido de la reina
-                continue;
-            }
-
-            if (!isPosBlocked(i, j)) {
-                bool eliminatedByTowerA =
-                    towerKillsQueen(towerA[0], towerA[1], i, j);
-                bool eliminatedByTowerB =
-                    towerKillsQueen(towerB[0], towerB[1], i, j);
-                if (eliminatedByTowerA || eliminatedByTowerB) {
-                    game.table[i][j] = IS_ELIMINATED;
-                } else {
-                    game.table[i][j] = CAN_PLAY;
-                }
-            }
-        }
-    }
-    printTable();
 }
 
 /*
@@ -231,6 +187,50 @@ bool towerKillsQueen(int towerX, int towerY, int checkX, int checkY) {
         return true;
     }
     return false;
+}
+
+/*
+ * Genera los movimientos posibles de la reina
+ */
+void generateQueenMoves() {
+    int queenCol = game.queenPos[0];
+    int queenRow = game.queenPos[1];
+    Pos& towerA = game.towerPos[0];
+    Pos& towerB = game.towerPos[1];
+
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            bool skipQueen = queenCol == i && queenRow == j;
+            bool skipTowerA = towerA[0] == i && towerA[1] == j;
+            bool skipTowerB = towerB[0] == i && towerB[1] == j;
+
+            if (skipQueen || skipTowerA || skipTowerB)
+                continue;
+
+            bool isDiagonalMove =
+                std::abs(i - queenCol) == std::abs(j - queenRow);
+
+            bool isQueenMove = isDiagonalMove || i == queenCol || j == queenRow;
+
+            if (!isQueenMove) {
+                // salta si no es un movimiento válido de la reina
+                continue;
+            }
+
+            if (!isPosBlocked(i, j)) {
+                bool eliminatedByTowerA =
+                    towerKillsQueen(towerA[0], towerA[1], i, j);
+                bool eliminatedByTowerB =
+                    towerKillsQueen(towerB[0], towerB[1], i, j);
+                if (eliminatedByTowerA || eliminatedByTowerB) {
+                    game.table[i][j] = IS_ELIMINATED;
+                } else {
+                    game.table[i][j] = CAN_PLAY;
+                }
+            }
+        }
+    }
+    printTable();
 }
 
 /*
