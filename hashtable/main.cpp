@@ -145,11 +145,11 @@ void updateStudent(Student* student) {
     cout << "Ingrese el nombre del estudiante: ";
     string name = readStr();
     cout << "Ingrese el codigo de carrera: ";
-    string coordinator = readStr();
+    string code = readStr();
     cout << "Ingrese el indice académico del estudiante: ";
     int academic_idx = readInt();
     student->name = name;
-    student->code = coordinator;
+    student->code = code;
     student->academic_idx = academic_idx;
 }
 
