@@ -8,7 +8,7 @@
  *              1114950 - Elian Gabriel Villegas Báez
  *              1116614 - Luis Daniel de la Cruz García
  *              1116623 - Aquilenyi Suero de los Santos
- * FECHA: 27/09/2023 <== Fecha de realización
+ * FECHA: 27/09g/2023 <== Fecha de realización
  */
 
 #include <iostream>

@@ -150,6 +150,11 @@ void updateStudent(Student* student) {
     int academic_idx = readInt();
     student->name = name;
     student->code = code;
+
+    while (academic_idx > 4) {
+        cout << "El indice académico debe estar entre 0 y 4. \nIngrese un valor válido: ";
+        academic_idx = readInt();
+    }
     student->academic_idx = academic_idx;
 }
 
